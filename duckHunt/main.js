@@ -12,6 +12,7 @@ var interval
 var frames = 0
 var xClick
 var yClick
+var dir = true
 
 //clases
 class Board {
@@ -29,42 +30,47 @@ class Board {
 
 class Enemy{
   constructor(){
-    this.x=0
-    this.y=0
+    this.x=Math.floor(Math.random()*canvas.width)
+    this.y=Math.floor(Math.random()*canvas.height)
     this.w=50
     this.h=50
     this.horizontal = true
     this.vertical = true
-    this.contador = 0
+    //this.movimientos=[this.moveRight,this.moveLeft,this.moveDown,this.moveTop]
     //this.speed = Math.floor((Math.random()*5)+2)
+    console.log(this.horizontal)
   }
   draw(){
-    
-    if(this.horizontal){
-    this.moveRight()
-    }else{this.moveLeft()}
+    /*if(frames%100 === 0){
+      enemies.forEach(function(element){
+        var random = Math.floor(Math.random()*(this.movimientos.length-1))
+        var movimiento = this.movimientos[random]
+        element.movimiento()
+      })
+    }*/
+    if(this.horizontal){this.moveRight()}
+    else{this.moveLeft()}
     if(this.vertical){this.moveDown()}
     else{this.moveTop()}
 
     //draw 
-    this.contador++
     ctx.fillStyle='black'
     ctx.fillRect(this.x,this.y,this.w,this.h)
   }
   moveRight(){
-    if(this.x<(canvas.width-this.w)){this.x+=3}
+    if(this.x<(canvas.width-this.w)){this.x+=4}
     else{this.horizontal=false}
   }
   moveLeft(){
-    if(this.x>=0){this.x-=3}
+    if(this.x>=0){this.x-=4}
       else{this.horizontal=true}
   }
   moveDown(){
-    if(this.y<canvas.height-this.h){this.y+=3}
+    if(this.y<canvas.height-this.h){this.y+=4}
     else{this.vertical=false}
   }
   moveTop(){
-    if(this.y>=0){this.y-=3}
+    if(this.y>=0){this.y-=4}
     else{this.vertical=true}
   }
   crashWith(){
@@ -80,24 +86,30 @@ var board = new Board()
 //enemy = new Enemy() 
 
 //funciones principales
+function start(){
+  if(interval)return
+  interval = setInterval(update,1000/60)
+}//start
 
 //funcion de iteracion
-interval = setInterval(function(){
+function update(){
   frames++
   ctx.clearRect(0,0,canvas.width,canvas.height)
   board.draw()
   if(frames%200===0)createEnemys()
   drawEnemys()
   checkCollections()
-},1000/60)
-
+  xClick=null
+  yClick=null
+}
 //funciones auxilires
 //function del(){
   //if(frames%2000===0){delete enemy}
 //}
 function createEnemys(){
   enemy = new Enemy()
-  enemies.push(enemy) 
+  enemies.push(enemy)
+  
 }
 
 function drawEnemys(){
@@ -120,3 +132,19 @@ addEventListener("click",function(e){
   console.log(xClick)
   console.log(yClick)
 })
+
+/*addEventListener('keydown',function(e){
+  if(e.keyCode===32){
+    xClick = e.clientX-rect.left
+    yClick = e.clientY-rect.top 
+    console.log(xClick)
+    console.log(yClick)
+    }
+})*/
+
+addEventListener('keydown',function(e){
+  if(e.keyCode===27){
+    start()
+    }
+})
+
