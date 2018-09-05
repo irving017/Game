@@ -1,5 +1,5 @@
 body{
-  background-color: yellow;
+  background-color: black;
 }
 
 section{
@@ -8,4 +8,8 @@ section{
   justify-content: center;
   align-items: center;
   height: 100vh;
+}
+
+canvas:hover{
+  cursor: crosshair;
 }
