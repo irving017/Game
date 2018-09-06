@@ -58,7 +58,7 @@ class Vampire{
     bool = !bool
     this.vertical = false
     this.image = new Image()
-    this.image.src='Thebat.png'
+    this.image.src='Red.png'
     this.h=this.image.naturalHeight
     this.image2 = new Image()
     this.image2.src = 'explosion.png'
@@ -84,7 +84,7 @@ class Vampire{
   if(this.cachoXE>this.image2.naturalWidth-this.wE) this.cachoXE=0
   }
   deathAnimation(){
-      if(frames%20==0)this.changeSpriteE()
+      if(frames%60===0)this.changeSpriteE()
       ctx.drawImage(this.image2,this.cachoXE,0,this.wE,this.image2.naturalHeight,this.x,this.y,this.wE,this.image2.naturalHeight)
   }
   moveRight(){
@@ -106,10 +106,10 @@ class Vampire{
     else{this.vertical=true}
   }
   crashWith(){
-    return  (this.x<xClick)&&
-            (this.x + this.w > xClick)&&
-            (this.y < yClick)&&
-            (this.y+this.h >yClick);
+    return  (this.x-5<xClick)&&
+            (this.x + this.w+5 > xClick)&&
+            (this.y-5 < yClick)&&
+            (this.y+this.h+5 >yClick);
   }
   crashLoose(){
     return (this.y+this.h) === loose
@@ -132,13 +132,13 @@ class Bullet{
 
 class Municion{
   constructor(){
-  this.x=250
-  this.y=400
+  this.x=Math.floor(Math.random()*700)
+  this.y=Math.floor(Math.random()*400)
   this.w=50
   this.h=50
   this.vertical = false
   this.image = new Image()
-  this.image.src='gun2.png'
+  this.image.src='gun.png'
   }
   draw(){
 
@@ -180,11 +180,14 @@ class Boss{
   constructor(){
   this.x = 350
   this.y = 400  
-  this.w = 75
-  this.h = 75
+  this.w = 132
+  this.cachoX=0
   this.vertical = true
   this.horizontal = true
-  this.life = 20
+  this.life = 30
+  this.image = new Image()
+  this.image.src='boss2.png'
+  this.h = 100
   }
   draw(){
     if(this.vertical === true){
@@ -194,10 +197,13 @@ class Boss{
       if(this.horizontal){this.moveRight()}
       else{this.moveLeft()}
     }
-
     //Draw
-    ctx.fillStyle='red'
-    ctx.fillRect(this.x,this.y,this.w,this.h)
+    if(frames%15==0) this.changeSprite()
+    ctx.drawImage(this.image,this.cachoX,0,this.w,this.h,this.x,this.y,this.w,this.h)
+  }
+  changeSprite(){
+    this.cachoX+=this.w
+    if(this.cachoX>this.image.naturalWidth-this.w) this.cachoX=0
   }
   moveTop(){
     if(this.y>=30)this.y-=5
@@ -213,23 +219,62 @@ class Boss{
         this.horizontal=true
     }
   }
+  crashWith(){
+    return  (this.x<xClick)&&
+            (this.x + this.w > xClick)&&
+            (this.y < yClick)&&
+            (this.y+this.h >yClick)
+  }
+
 } // Boss
 
 class redVamp{
   constructor(x,y){
     this.x = x
     this.y = y
-    this.w = 30
-    this.h = 30
+    this.w = 255/4
+    this.cachoX = 0
+    this.horizontal=bool
+    bool=!bool
+    this.image = new Image()
+    this.image.src='Thebat.png'
+    this.h=this.image.naturalHeight
   }
   draw(){
     this.moveDown()
+    if(this.horizontal){
+      this.moveLeft()
+    }else{this.moveRight()}
+    
     //draw
-    ctx.fillStyle='red'
-    ctx.fillRect(this.x,this.y,this.w,this.h)
+    if(frames%10==0) this.changeSprite()
+    ctx.drawImage(this.image,this.cachoX,0,this.w,this.h,this.x,this.y,this.w,this.h)    
+    //ctx.fillStyle='red'
+    //ctx.fillRect(this.x,this.y,this.w,this.h)
+  }
+  changeSprite(){
+    this.cachoX+=this.w
+    if(this.cachoX>this.image.naturalWidth-this.w) this.cachoX=0
   }
   moveDown(){
-    this.y += 2
+    this.y+=2
+  }
+  moveLeft(){
+    if(this.x>=0)this.x-=3
+    else this.horizontal=false
+  }
+  moveRight(){
+    if(this.x<(canvas.width-this.w)) this.x+=3
+    else this.horizontal=true
+  }
+  crashWith(){
+    return  (this.x-10<xClick)&&
+            (this.x + this.w+10> xClick)&&
+            (this.y-10< yClick)&&
+            (this.y+this.h+10>yClick)
+  }
+  crashLoose(){
+    return this.y > loose
   }
 } // redVamp
 
@@ -246,6 +291,24 @@ function start(){
   municiones=[]
   frames = 0
 }//start
+
+function win(){
+  if(bosses[0].life===0){
+  clearInterval(interval)
+  ctx.fillStyle = "black"
+  ctx.font="80px Avenir"
+  ctx.fillText("Ganaste Perro",30,130)
+  ctx.font="50px Avenir"
+  ctx.fillText("...",40,180)
+  interval=null
+  frames = 0
+  score = 0
+  x=0
+  createBullets()
+  board.music.pause()
+  board.music.currentTime=0
+  }
+}
 
 function gameOver(){
   if(bullets.length===0){
@@ -278,15 +341,12 @@ function update(){
     createEnemys()
     createEnemys()
     createEnemys()
-  //createEnemys()
     }
   if(frames%800===0){
     createMuniciones()
   }
-  /*if(frames>2800 && score>49){
-    createBoss()
-  }*/
-  if(frames%50 === 0 && frames>2700){
+  if(frames%90 === 0 && score>50){
+    createRed()
     createRed()
   }
   if(score>49)drawBoss()
@@ -294,14 +354,18 @@ function update(){
   drawMuniciones()
   drawEnemys()
   checkCollision()
+  checkCollisionRed()
+  checkCollisionBoss()
   checkReload()
   checkLoose()
+  checkLooseRed()
   drawBullets()
   deleteMunition()
   gameOver()
+  win()
   xClick=null
-  yClick=
-  console.log(frames)
+  yClick=null
+  //console.log(frames)
 } //update
 
 //funciones auxilires
@@ -326,16 +390,38 @@ function checkCollision(){
   })
 }// checkCollision
 
+function checkCollisionRed(){
+  reds.forEach(function(element){
+    if(element.crashWith()){
+      reds.splice(reds.indexOf(element),1)
+      score++
+    }
+  })
+} // checkCollisionRed
+function checkCollisionBoss(){
+  if(bosses[0].crashWith()){
+    bosses[0].life--
+  }
+}
+
 function checkLoose(){
   enemies.forEach(function(element){
     if(element.crashLoose()){
       bullets.pop()
       enemies.splice(enemies.indexOf(element),1)
       pruebaloose++
-      console.log(pruebaloose)
     }
   })
 }//checkLoose 
+
+function checkLooseRed(){
+  reds.forEach(function(element){
+    if(element.crashLoose()){
+      bullets.pop()
+      reds.splice(reds.indexOf(element),1)
+    }
+  })
+} // cheackLooseRed
 
 function createMuniciones(){
   mun = new Municion()
@@ -359,10 +445,10 @@ function checkReload(){
       bullets.push(bullet)
     }
   })
-}
+} // checkReload
 
 function createBullets(){
-  for(i=0;i<5;i++){
+  for(i=0;i<10;i++){
     var bullet = new Bullet()
     if(i>0){
       bullet.x=x
@@ -386,27 +472,24 @@ function deleteMunition(){
     municiones.pop()
     contador = 0
   }
-}
-/*function createBoss(){
-  boss = new Boss()
-  bosses.push(boss)
+}//deleteMunition
 
-}*/
 function drawBoss(){
   bosses.forEach(function(element){
   element.draw()
   })
-}
+} // drawBoss
+
 function createRed(){
-  red = new redVamp(bosses[0].x,bosses[0].y)
+  red = new redVamp((bosses[0].x+(bosses[0].w)/2),(bosses[0].y+70))
   reds.push(red)
-}
+}//creatRed
+
 function drawReds(){
   reds.forEach(function(element){
   element.draw()
   })
 }
-
 
 createBullets() // Inicia la instancias de las balas iniciales
 
