@@ -448,7 +448,7 @@ function checkReload(){
 } // checkReload
 
 function createBullets(){
-  for(i=0;i<10;i++){
+  for(i=0;i<5;i++){
     var bullet = new Bullet()
     if(i>0){
       bullet.x=x
