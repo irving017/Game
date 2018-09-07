@@ -2,14 +2,41 @@ body{
   background-color: black;
 }
 
-section{
+#section-two{
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  height: 100vh;
+  background-image: url('./fondo.jpg')
 }
 
 canvas:hover{
   cursor: crosshair;
+}
+#sention-one{
+  color: white;
+  display:flex;
+  flex-direction: row;
+  justify-content: center;
+  margin-bottom: 30px;
+}
+
+#sention-one img{
+ width:280px;
+}
+
+#instrucciones{
+  font-family: Helvetica;
+  width: 50%;
+
+}
+
+#sention-one button{
+  background-color: red;
+  border: none;
+  color:white;
+  padding:10px;
+  font-size: 20px;
+  width:200px;
+  margin: 10px 20px;
 }

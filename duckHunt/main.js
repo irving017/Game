@@ -2,6 +2,7 @@
 var canvas = document.getElementsByTagName('canvas')[0];
 var ctx = canvas.getContext('2d');
 var rect = canvas.getBoundingClientRect()
+var boton2 = document.getElementById('player2')
 
 //test
 //ctx.fillRect(0,0,canvas.width,canvas.height)
@@ -22,6 +23,7 @@ var x = 0
 var bosses = []
 var reds = []
 var contador=0
+var player2 = false
 
 //clases
 class Board {
@@ -106,10 +108,10 @@ class Vampire{
     else{this.vertical=true}
   }
   crashWith(){
-    return  (this.x-10<xClick)&&
-            (this.x + this.w+10> xClick)&&
-            (this.y-10< yClick)&&
-            (this.y+this.h+10 >yClick);
+    return  (this.x-5<xClick)&&
+            (this.x + this.w+5> xClick)&&
+            (this.y-5< yClick)&&
+            (this.y+this.h+5 >yClick);
   }
   crashLoose(){
     return (this.y+this.h) === loose
@@ -172,7 +174,7 @@ class Municion{
     return  (this.x<xClick)&&
             (this.x + this.w > xClick)&&
             (this.y < yClick)&&
-            (this.y+this.h >yClick);
+            (this.y+this.h >yClick)
   }
 }//municion
 
@@ -278,10 +280,46 @@ class redVamp{
   }
 } // redVamp
 
+class Mira{
+  constructor(){
+    this.x=300
+    this.y=400
+    this.w=30
+    this.h=30
+    this.image = new Image()
+    this.image.src='mira.png'
+  }
+  draw(){
+    //draw
+    ctx.drawImage(this.image,this.x,this.y,this.w,this.h)
+  }
+  moveLeft(){
+    this.x-=50
+  }
+  moveRight(){
+    this.x+=50
+  }
+  moveDown(){
+    this.y+=50
+  }
+  moveTop(){
+    this.y-=50
+  }
+  crashWith(item){
+    return  (this.x < item.x + item.w)&&
+            (this.x + this.w > item.x)&&
+            (this.y < item.y + item.h)&&
+            (this.y+this.h >item.y)
+  }
+
+} // Mira
+
 //objetos
 var board = new Board()
+var mira = new Mira()
 var boss = new Boss()
 bosses.push(boss)
+
 
 //funciones principales
 function start(){
@@ -299,16 +337,18 @@ function win(){
   ctx.font="80px Avenir"
   ctx.fillText("Ganaste Perro",30,130)
   ctx.font="50px Avenir"
-  ctx.fillText("...",40,180)
+  ctx.fillText("Press enter to Start",40,180)
   interval=null
   frames = 0
   score = 0
   x=0
+  bosses[0].life=30
+  reds=[]
   createBullets()
   board.music.pause()
   board.music.currentTime=0
   }
-}
+}// win
 
 function gameOver(){
   if(bullets.length===0){
@@ -317,11 +357,13 @@ function gameOver(){
   ctx.font="80px Avenir"
   ctx.fillText("Game Over",30,130)
   ctx.font="50px Avenir"
-  ctx.fillText("Press esc to Start",40,180)
+  ctx.fillText("Press enter to Start",40,180)
   interval=null
   frames = 0
   score = 0
   x=0
+  bosses[0].life=30
+  reds=[]
   createBullets()
   board.music.pause()
   board.music.currentTime=0
@@ -333,11 +375,24 @@ function update(){
   frames++
   ctx.clearRect(0,0,canvas.width,canvas.height)
   board.draw()  
-  if(frames%100===0 && score<20){
+  if(frames%100===0 && score<20 && player2===false){
     createEnemys()
     createEnemys()
   }
-  if(frames%100===0 && score>19 && score<50){
+  if(frames%100===0 && score<20 && player2===true){
+    createEnemys()
+    createEnemys()
+    createEnemys()
+    createEnemys()
+  }
+  if(frames%100===0 && score>19 && score<50 && player2 === false){
+    createEnemys()
+    createEnemys()
+    createEnemys()
+    }
+  if(frames%100===0 && score>19 && score<50 && player2 === true){
+    createEnemys()
+    createEnemys()
     createEnemys()
     createEnemys()
     createEnemys()
@@ -345,11 +400,17 @@ function update(){
   if(frames%800===0){
     createMuniciones()
   }
-  if(frames%90 === 0 && score>50){
+  if(frames%90 === 0 && score>50 && player2===false){
+    createRed()
+    createRed()
+  }
+  if(frames%70 === 0 && score>50 && player2===true){
+    createRed()
     createRed()
     createRed()
   }
   if(score>49)drawBoss()
+  if(player2)mira.draw()
   drawReds()
   drawMuniciones()
   drawEnemys()
@@ -398,10 +459,41 @@ function checkCollisionRed(){
     }
   })
 } // checkCollisionRed
+
 function checkCollisionBoss(){
   if(bosses[0].crashWith()){
     bosses[0].life--
   }
+}
+
+function checkCollisionMira(){
+    enemies.forEach(function(element){
+      if(mira.crashWith(element)){
+        enemies.splice(enemies.indexOf(element),1)
+        score++
+      }
+    })
+    municiones.forEach(function(element){
+      if(mira.crashWith(element)){
+        municiones.splice(municiones.indexOf(element),1)
+        var bullet = new Bullet()
+        bullet.x=x
+        x+=30
+        bullets.push(bullet)
+      }
+    })
+    reds.forEach(function(element){
+      if(mira.crashWith(element)){
+        reds.splice(reds.indexOf(element),1)
+        score++
+      }
+    })
+    bosses.forEach(function(element){
+      if(mira.crashWith(element)){
+        bosses[0].life--
+      }
+    })
+
 }
 
 function checkLoose(){
@@ -448,7 +540,7 @@ function checkReload(){
 } // checkReload
 
 function createBullets(){
-  for(i=0;i<5;i++){
+  for(i=0;i<4;i++){
     var bullet = new Bullet()
     if(i>0){
       bullet.x=x
@@ -501,14 +593,26 @@ addEventListener("click",function(e){
   console.log(yClick)
 })
 
-/*addEventListener('keydown',function(e){
-  if(e.keyCode===32){
-    xClick = e.clientX-rect.left
-    yClick = e.clientY-rect.top 
-    console.log(xClick)
-    console.log(yClick)
-    }
-})*/
+addEventListener('keydown',function(e){
+  e.preventDefault()
+  switch (e.keyCode) {
+    case 87:
+      mira.moveTop()
+    break
+    case 83:
+      mira.moveDown()
+    break
+    case 65:
+      mira.moveLeft()
+    break
+    case 68:
+      mira.moveRight()
+    break
+    case 32:
+      checkCollisionMira()
+    break
+  }
+})
 
 addEventListener('keydown',function(e){
   if(e.keyCode===13){
@@ -516,4 +620,7 @@ addEventListener('keydown',function(e){
     board.music.play()
     }
 })
-
+boton2.onclick=function(){
+  console.log('pA2')
+  player2=true
+}
