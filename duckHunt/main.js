@@ -469,6 +469,7 @@ function checkCollisionBoss(){
 function checkCollisionMira(){
     enemies.forEach(function(element){
       if(mira.crashWith(element)){
+        element.deathAnimation()
         enemies.splice(enemies.indexOf(element),1)
         score++
       }
