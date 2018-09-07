@@ -108,10 +108,10 @@ class Vampire{
     else{this.vertical=true}
   }
   crashWith(){
-    return  (this.x-5<xClick)&&
-            (this.x + this.w+5> xClick)&&
-            (this.y-5< yClick)&&
-            (this.y+this.h+5 >yClick);
+    return  (this.x-10<xClick)&&
+            (this.x + this.w+10> xClick)&&
+            (this.y-10< yClick)&&
+            (this.y+this.h+10 >yClick);
   }
   crashLoose(){
     return (this.y+this.h) === loose
