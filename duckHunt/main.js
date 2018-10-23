@@ -2,7 +2,6 @@
 var canvas = document.getElementsByTagName('canvas')[0];
 var ctx = canvas.getContext('2d');
 var rect = canvas.getBoundingClientRect()
-//var rect = canvas.getBBox()
 var boton2 = document.getElementById('player2')
 
 //test
